@@ -15,11 +15,10 @@ void errorHandler(char * msg) {
     exit(EXIT_FAILURE);
 }
 
-//void* handleConnection(void* arg) {
-    //int* socket_ptr = (int *)arg;
-    //int clientSocket = *socket_ptr;
-    //free(socket_ptr);
-void handleConnection(int clientSocket) {
+void* handleConnection(void* arg) {
+    int* socket_ptr = (int *)arg;
+    int clientSocket = *socket_ptr;
+    free(socket_ptr);
     long valread;
     char buffer[1024] = {0};
     char *httpMsg = "HTTP/1.0 200 OK\r\n\r\nHello from the server side!\n";
@@ -32,7 +31,7 @@ void handleConnection(int clientSocket) {
     printf("message sent\n");
     memset(buffer, 0, sizeof(buffer));
     close(clientSocket);
-    // return NULL;
+    return NULL;
 }
 
 int main() {
@@ -67,11 +66,11 @@ int main() {
                         (socklen_t*)&addrlen)) < 0) 
             errorHandler("Error in accept");
         
-         // handleConnection(new_socket);
-        //pthread_t socketThread;
-        //int* clientArg = (int *)malloc(sizeof(int));
-        //*clientArg = new_socket;
-        //pthread_create(&socketThread, NULL, handleConnection, clientArg);
+        // handleConnection(new_socket);
+        pthread_t socketThread;
+        int* clientArg = (int *)malloc(sizeof(int));
+        *clientArg = new_socket;
+        pthread_create(&socketThread, NULL, handleConnection, clientArg);
     }
     close(server_fd);
 

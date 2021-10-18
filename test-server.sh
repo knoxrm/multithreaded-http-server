@@ -2,6 +2,6 @@
 
 for N in {1..50}
 do 
-    ./client
+    ./client.o
 done
 wait
