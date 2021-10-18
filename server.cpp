@@ -5,17 +5,19 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <signal.h>
 
 #define PORT 8000
 #define SERVER_BACKLOG 1
 
+static int keeprunning = 1;
 
 void errorHandler(char * msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
-void* handleConnection(void* arg) {
+ void* handleConnection(void* arg) {
     int* socket_ptr = (int *)arg;
     int clientSocket = *socket_ptr;
     free(socket_ptr);
@@ -29,7 +31,8 @@ void* handleConnection(void* arg) {
     printf("%s", buffer);
     send(clientSocket, httpMsg, strlen(httpMsg),0);
     printf("message sent\n");
-    memset(buffer, 0, sizeof(buffer));
+    // memset(buffer, 0, sizeof(buffer));
+    bzero(&buffer, sizeof(buffer));
     close(clientSocket);
     return NULL;
 }
@@ -59,7 +62,8 @@ int main() {
     if (listen(server_fd, SERVER_BACKLOG) < 0) 
         errorHandler("Error in Listen");
 
-    while (1) {
+
+    while (keeprunning) {
         printf("Waiting for a connection.....\n");
         if ((new_socket = accept(server_fd,
                         (struct sockaddr *)&address,
